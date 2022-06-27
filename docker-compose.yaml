@@ -3,20 +3,19 @@ version: '3.8'
 services:
   app:
     image: pawelmalak/snippet-box
+    networks:
+      - traefik_proxy
+      - default
     volumes:
       - ./data:/app/data
-    deploy:
-      placement:
-        constraints:
-          - node.hostname == ${HOSTNAME}
-      labels:
-        - traefik.enable=true
-        - traefik.http.routers.202204__${PROJECT_NAME}.entrypoints=websecure
-        - traefik.http.routers.202204__${PROJECT_NAME}.rule=Host(`${DOMAIN}`)
-        - traefik.http.routers.202204__${PROJECT_NAME}.tls.certresolver=leresolver
-        - traefik.http.services.202204__${PROJECT_NAME}.loadbalancer.server.port=5000
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.202204__${PROJECT_NAME}.entrypoints=websecure
+      - traefik.http.routers.202204__${PROJECT_NAME}.rule=Host(`${DOMAIN}`)
+      - traefik.http.routers.202204__${PROJECT_NAME}.tls.certresolver=leresolver
+      - traefik.http.services.202204__${PROJECT_NAME}.loadbalancer.server.port=5000
+      - traefik.http.routers.202204__${PROJECT_NAME}.middlewares=basic-auth@file
 
 networks:
-  default:
-    external:
-      name: proxy-main
+  traefik_proxy:
+    external: true
